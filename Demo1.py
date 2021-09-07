@@ -45,10 +45,16 @@ with Client() as client:
         print ('Connected to remote API server')
 
         RobotArm= 'blueArm'
-         
+        client.id    
+        EndofArm = "blueArm_connection" 
+        ec,EndofArmh =sim.simxGetObjectHandle(client.id,EndofArm,sim.simx_opmode_blocking)
+        print ("END")
+        print (ec)
+        print (EndofArmh)
+        print ("DONE")
         client.stringSignalName1=RobotArm+'_executedMovId'
         f3dout = open(client.fname, "a")
-
+        
         def waitForMovementExecuted1(id):
             while client.executedMovId1!=id:
                 retCode,s=sim.simxGetStringSignal(client.id,client.stringSignalName1,sim.simx_opmode_buffer)
@@ -71,8 +77,13 @@ with Client() as client:
         
             # Wait until above movement sequence finished executing:
             waitForMovementExecuted1(seqName)
+            WriteArmLoc()
+        def WriteArmLoc(  ):
+            st, loc =sim.simxGetObjectPosition(client.id,EndofArmh, -1,  sim.simx_opmode_blocking)
+            print (loc )
+            if (st==0):
+                f3dout.write(str(loc[0]) +',' +str(loc[1]) +',' +str(loc[2]))
 
-        
 
 
         # Start streaming client.stringSignalName1 and client.stringSignalName2 string signals:
@@ -94,53 +105,53 @@ with Client() as client:
         
 
         # Send first movement sequence:
-        targetConfig=[90*math.pi/180,90*math.pi/180,-90*math.pi/180,90*math.pi/180,90*math.pi/180,90*math.pi/180]
-        movementData={"id":"movSeq1","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
-        packedMovementData=msgpack.packb(movementData)
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
+        #targetConfig=[90*math.pi/180,90*math.pi/180,-90*math.pi/180,90*math.pi/180,90*math.pi/180,90*math.pi/180]
+        #movementData={"id":"movSeq1","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
+        #packedMovementData=msgpack.packb(movementData)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
          
 
         # Execute first movement sequence:
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq1',sim.simx_opmode_oneshot)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq1',sim.simx_opmode_oneshot)
          
         
         # Wait until above movement sequence finished executing:
-        waitForMovementExecuted1('movSeq1') 
+        #waitForMovementExecuted1('movSeq1') 
         
 
         # Send second and third movement sequence, where third one should execute immediately after the second one:
-        targetConfig=[-90*math.pi/180,45*math.pi/180,90*math.pi/180,135*math.pi/180,90*math.pi/180,90*math.pi/180]
-        targetVel=[-60*math.pi/180,-20*math.pi/180,0,0,0,0]
-        movementData={"id":"movSeq2","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
-        packedMovementData=msgpack.packb(movementData)
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
+        #targetConfig=[-90*math.pi/180,45*math.pi/180,90*math.pi/180,135*math.pi/180,90*math.pi/180,90*math.pi/180]
+        #targetVel=[-60*math.pi/180,-20*math.pi/180,0,0,0,0]
+        #movementData={"id":"movSeq2","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
+        #packedMovementData=msgpack.packb(movementData)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
         
-        targetConfig=[0,0,0,0,0,0]
-        targetVel=[0,0,0,0,0,0]
-        movementData={"id":"movSeq3","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
-        packedMovementData=msgpack.packb(movementData)
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
+        #targetConfig=[0,0,0,0,0,0]
+        #targetVel=[0,0,0,0,0,0]
+        #movementData={"id":"movSeq3","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
+        #packedMovementData=msgpack.packb(movementData)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
         
 
         # Execute second and third movement sequence:
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq2',sim.simx_opmode_oneshot)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq2',sim.simx_opmode_oneshot)
          
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq3',sim.simx_opmode_oneshot)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq3',sim.simx_opmode_oneshot)
          
         
         # Wait until above 2 movement sequences finished executing:
-        waitForMovementExecuted1('movSeq2')
-        waitForMovementExecuted1('movSeq3')
+        #waitForMovementExecuted1('movSeq2')
+        #waitForMovementExecuted1('movSeq3')
         
         #4
-        targetConfig=[0,-170*math.pi/180,0,0,0,0]
-        movementData={"id":"movSeq4","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
-        packedMovementData=msgpack.packb(movementData)
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
+        #targetConfig=[0,-170*math.pi/180,0,0,0,0]
+        #movementData={"id":"movSeq4","type":"mov","targetConfig":targetConfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
+        #packedMovementData=msgpack.packb(movementData)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
          
 
         # Execute fourth movement sequence:
-        sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq4',sim.simx_opmode_oneshot)
+        #sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],'movSeq4',sim.simx_opmode_oneshot)
          
 
         #5
@@ -149,11 +160,11 @@ with Client() as client:
 
         
         # Wait until above movement sequence finished executing:
-        waitForMovementExecuted1('movSeq4') 
+        #waitForMovementExecuted1('movSeq4') 
 
         move([0,-170*math.pi/180,-170*math.pi/180,0,-170*math.pi/180,0],'seq5')
         move([0,-90*math.pi/180,-90*math.pi/180,0,-90*math.pi/180,0],'seq6')
-
+        move([0,  45*math.pi/180, 45*math.pi/180,0, 45*math.pi/180,0],'seq7')
 
         ec,blueArm_joint2 =sim.simxGetObjectHandle(client.id,"blueArm_joint2",sim.simx_opmode_blocking)
 
@@ -167,7 +178,7 @@ with Client() as client:
 
 
 
-
+        f3dout.close()
         sim.simxStopSimulation(client.id,sim.simx_opmode_blocking)
         sim.simxGetStringSignal(client.id,client.stringSignalName1,sim.simx_opmode_discontinue)
        
