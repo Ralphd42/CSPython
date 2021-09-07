@@ -41,12 +41,13 @@ with Client() as client:
     print("running")
 
     if client.id!=-1:
+
         print ('Connected to remote API server')
 
-        targetArm1= 'blueArm'
+        RobotArm= 'blueArm'
          
-        client.stringSignalName1=targetArm1+'_executedMovId'
-        
+        client.stringSignalName1=RobotArm+'_executedMovId'
+        f3dout = open(client.fname, "a")
 
         def waitForMovementExecuted1(id):
             while client.executedMovId1!=id:
@@ -61,17 +62,17 @@ with Client() as client:
             #targetConfig=[0,-170*math.pi/180,0,0,0,0]
             movementData={"id":seqName,"type":"mov","targetConfig":Tconfig,"targetVel":targetVel,"maxVel":maxVel,"maxAccel":maxAccel}
             packedMovementData=msgpack.packb(movementData)
-            sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
+            sim.simxCallScriptFunction(client.id,RobotArm,sim.sim_scripttype_childscript,'legacyRapiMovementDataFunction',[],[],[],packedMovementData,sim.simx_opmode_oneshot)
          
 
             # Execute fourth movement sequence:
-            sim.simxCallScriptFunction(client.id,targetArm1,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],seqName,sim.simx_opmode_oneshot)
+            sim.simxCallScriptFunction(client.id,RobotArm,sim.sim_scripttype_childscript,'legacyRapiExecuteMovement',[],[],[],seqName,sim.simx_opmode_oneshot)
          
         
             # Wait until above movement sequence finished executing:
             waitForMovementExecuted1(seqName)
 
-
+        
 
 
         # Start streaming client.stringSignalName1 and client.stringSignalName2 string signals:
